@@ -1,0 +1,6 @@
+1 - para instalar o conector do mysql, exe o comando dentro da venv
+/> pip install mysql-connector-python==8.0.28
+
+2 - Neste projeto iremos usar a orm alchemy, onde irá traduzir os objetos para python para linguagem sql
+Ele não somente traduz, mas ofere muitas outras ferramentas
+/>pip install flask-sqlalchemy==2.5.1
