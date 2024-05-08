@@ -1,12 +1,14 @@
 from flask import render_template, request, redirect, session, flash, url_for, send_from_directory
 from flask_jogoteca import app, db
 from models import Jogos, Usuarios
-
+from helpers import recupera_imagem, deleta_arquivo
+import time
 
 @app.route('/')
 def index():
     lista = Jogos.query.order_by(Jogos.id) #faz select no bd ordenando  id
     return render_template('lista.html', titulo='Jogos', jogos=lista)
+
 
 @app.route('/novo')
 def novo():
@@ -36,8 +38,9 @@ def criar():
 
     #grava arquivo do jogo dentro de uma pasta no server.
     arquivo = request.files['arquivo']
-    upload_path = app.config['UPLOAD'] #PEGA CAMINHO DENTRO DO config.py
-    arquivo.save(f'upload_path/capa{novo_jogo}.jpg')
+    upload_path = app.config['UPLOAD_PATH'] #PEGA CAMINHO DENTRO DO config.py
+    timestamp = time.time()
+    arquivo.save(f'{upload_path}/capa{novo_jogo.id}-{timestamp}.jpg')
 
     #url_for localiza o metodo entre as aspas
     return redirect(url_for('index'))
@@ -48,8 +51,10 @@ def editar(id):
     if 'usuario_logado' not in session or session['usuario_logado'] == None:
         # caso tente acessar a tela de novo e esteja deslogado, depois que logar ele manda para tela de novo
         return redirect(url_for('login', proxima=url_for('editar')))
+
     jogo = Jogos.query.filter_by(id=id).first()
-    return render_template('editar.html', titulo='Editando Jogo', jogo=jogo)
+    capa_jogo = recupera_imagem(id)
+    return render_template('editar.html', titulo='Editando Jogo', jogo=jogo, capa_jogo = capa_jogo)
 
 @app.route('/atualizar', methods=['POST',])
 def atualizar():
@@ -61,6 +66,12 @@ def atualizar():
     #gravando no banco:
     db.session.add(jogo)
     db.session.commit()
+
+    arquivo = request.files['arquivo']
+    upload_path = app.config['UPLOAD_PATH']  # PEGA CAMINHO DENTRO DO config.py
+    timestamp = time.time()
+    deleta_arquivo(id)
+    arquivo.save(f'{upload_path}/capa{jogo.id}-{timestamp}.jpg')
 
     return redirect(url_for('index'))
 
@@ -108,8 +119,6 @@ def imagem(nome_arquivo):
     return send_from_directory('uploads', nome_arquivo)
 
 
-def recupera_imagem(id):
-    for nome_arquivo in os.listdir(app.config['UPLOAD_PATH']):
 
 
 
