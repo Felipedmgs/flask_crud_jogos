@@ -7,3 +7,6 @@ Ele não somente traduz, mas ofere muitas outras ferramentas
 
 3 - pudemos usar o wft para validar o formulario
 pip install flask-wtf==1.0.0
+
+4 - instalando criptografia no python
+pip install flask-bcrypt==0.7.1
